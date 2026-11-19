@@ -201,6 +201,18 @@ def _finish(ctx: HackbotContext, outcome: object) -> int:
     return exit_code
 
 
+# DEV TEST ONLY, do not merge: what mozilla/webservices-infra#13771 will set.
+# Cloud Run names the Job in CLOUD_RUN_JOB; dev Jobs end in -dev.
+if os.environ.get("CLOUD_RUN_JOB", "").endswith("-dev"):
+    for _key, _value in {
+        "SOURCE_SNAPSHOT_BUCKET": "moz-fx-hackbot-nonprod-source-snapshot-dev",
+        "CCACHE": "sccache",
+        "SCCACHE_GCS_BUCKET": "sccache-l3-us-west1",
+        "SCCACHE_GCS_RW_MODE": "READ_ONLY",
+    }.items():
+        os.environ.setdefault(_key, _value)
+
+
 def run(entrypoint: AgentMain, config: ConfigArg = None) -> NoReturn:
     _configure_sentry(entrypoint)
     _configure_logging()
